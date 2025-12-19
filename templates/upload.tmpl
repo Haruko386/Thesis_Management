@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"><title>上传论文 - PaperHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+<div class="bg-white p-8 rounded-2xl shadow-sm border w-full max-w-lg">
+    <h2 class="text-2xl font-bold mb-6">上传新论文</h2>
+    <form action="/api/upload" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <input type="text" name="title" placeholder="论文标题" class="w-full border p-3 rounded-xl bg-gray-50" required>
+        <input type="text" name="author" placeholder="作者" class="w-full border p-3 rounded-xl bg-gray-50" required>
+        <select name="classification" class="w-full border p-3 rounded-xl bg-gray-50">
+            <option value="未分类">选择分类</option>
+            <option value="人工智能">人工智能</option>
+            <option value="计算机视觉">计算机视觉</option>
+        </select>
+        <div class="border-2 border-dashed rounded-xl p-8 text-center hover:bg-gray-50 transition cursor-pointer relative">
+            <input type="file" name="file" class="absolute inset-0 opacity-0 cursor-pointer" required>
+            <p class="text-gray-400">点击或拖拽 PDF 文件至此处</p>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">确认上传</button>
+    </form>
+</div>
+</body>
+</html>

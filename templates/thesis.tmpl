@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阅读论文 - PaperHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 隐藏 PDF 容器外的滚动条 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        /* 顶部导航栏交互逻辑 */
+        #top-nav {
+            transform: translateY(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #hover-zone:hover #top-nav {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<div id="hover-zone" class="fixed top-0 left-0 w-full h-20 z-50">
+    <nav id="top-nav" class="bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-4 flex items-center shadow-sm">
+        <a href="/" class="flex items-center text-gray-600 hover:text-blue-600 transition group">
+            <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+            <span class="font-medium">返回论文列表</span>
+        </a>
+        <div class="ml-8 border-l border-gray-300 h-6 mx-4"></div>
+        <h2 class="text-gray-800 font-bold truncate">正在阅读: ApDepth.pdf</h2>
+    </nav>
+</div>
+
+<div class="w-full h-full">
+    <iframe
+            src="/asset/Paper/ApDepth.pdf#toolbar=0"
+            class="w-full h-full border-none"
+            type="application/pdf">
+    </iframe>
+</div>
+
+</body>
+</html>
