@@ -17,21 +17,34 @@
         </button>
         <h1 class="text-xl font-bold tracking-tight text-gray-800">Paper<span class="text-blue-600">Hub</span></h1>
     </div>
+
     <div class="flex items-center gap-4 relative">
         <div class="relative group">
-            <button id="userMenuBtn" class="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition focus:outline-none">
-                <i class="fas fa-user"></i>
+            <button id="userMenuBtn"
+                    class="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition focus:outline-none overflow-hidden">
+                {{if .isLogin}}
+                    <img src="/asset/admin.png" class="w-full h-full object-cover" alt="admin">
+                {{else}}
+                    <i class="fas fa-user"></i>
+                {{end}}
             </button>
 
-            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
-                <a href="/login" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
-                    <i class="fas fa-sign-in-alt mr-3"></i> 登录系统
-                </a>
-                <div class="border-t border-gray-100 my-1"></div>
-                <p class="px-4 py-2 text-xs text-gray-400 font-medium uppercase tracking-wider">系统设置</p>
-                <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
-                    <i class="fas fa-cog mr-3"></i> 偏好设置
-                </a>
+            <div id="userDropdown"
+                 class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
+                {{if .isLogin}}
+                    <p class="px-4 py-2 text-xs text-gray-400 font-medium uppercase tracking-wider">当前用户</p>
+                    <div class="px-4 pb-2 text-sm text-gray-700 font-semibold truncate">{{.user}}</div>
+                    <div class="border-t border-gray-100 my-1"></div>
+                    <a href="/logout"
+                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition">
+                        <i class="fas fa-sign-out-alt mr-3"></i> 退出登录
+                    </a>
+                {{else}}
+                    <a href="/login"
+                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                        <i class="fas fa-sign-in-alt mr-3"></i> 登录系统
+                    </a>
+                {{end}}
             </div>
         </div>
     </div>
@@ -40,20 +53,28 @@
 <div class="flex flex-1 overflow-hidden">
     <aside id="sidebar" class="sidebar-transition w-64 bg-white border-r border-gray-200 flex flex-col">
         <div class="p-6">
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">论文分类</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Categories</p>
             <nav class="space-y-1">
-                <a href="#" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md bg-blue-50 text-blue-700">
-                    <i class="fas fa-folder-open mr-3"></i>
-                    <span>未分类</span>
-                    <span class="ml-auto bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-xs">12</span>
+                <a href="/?c=全部"
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-md {{if eq .currentCls "全部"}}bg-blue-50 text-blue-700{{else}}text-gray-600 hover:bg-gray-50{{end}}">
+                    <i class="fas fa-layer-group mr-3"></i>
+                    <span>全部</span>
+                    <span class="ml-auto bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-xs">{{.totalCount}}</span>
                 </a>
 
-                <div class="pt-4 mt-4 border-t border-gray-100">
-                    <button class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 w-full transition">
-                        <i class="fas fa-plus-circle mr-3"></i>
-                        <span>新建分类</span>
-                    </button>
-                </div>
+                {{range $name, $count := .categories}}
+                    <a href="/?c={{$name}}"
+                       class="group flex items-center px-3 py-2 text-sm font-medium rounded-md
+   {{if eq $.currentCls $name}}bg-blue-50 text-blue-700{{else}}text-gray-600 hover:bg-gray-50{{end}}">
+                        <i class="fas fa-folder-open mr-3"></i>
+                        <span class="truncate">{{$name}}</span>
+                        <span class="ml-auto bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+        {{$count}}
+    </span>
+                    </a>
+                {{end}}
+
+                <!-- 去掉“新建分类” -->
             </nav>
         </div>
         <div class="mt-auto p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
@@ -66,64 +87,102 @@
             <div class="flex justify-between items-end mb-8">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900">所有论文</h2>
-                    <p class="text-gray-500 mt-1">当前分类：<span class="font-medium text-gray-700">未分类</span></p>
+                    <p class="text-gray-500 mt-1">当前分类：<span
+                                class="font-medium text-gray-700">{{.currentCls}}</span></p>
                 </div>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
-                    + 上传新论文
-                </button>
+
+                {{if .isLogin}}
+                    <a href="/upload"
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
+                        + 上传新论文
+                    </a>
+                {{else}}
+                    <a href="/login"
+                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
+                        登录后上传
+                    </a>
+                {{end}}
             </div>
 
             <div class="grid gap-6">
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex h-48">
+                {{if .theses}}
+                    {{range .theses}}
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex h-48">
+                            <div class="w-32 sm:w-40 h-full bg-gray-100 flex-shrink-0 border-r border-gray-100 overflow-hidden">
+                                <img src="/paper/cover/{{.ID}}" alt="cover"
+                                     class="w-full h-full object-cover object-top hover:scale-110 transition duration-500">
+                            </div>
 
-                    <div class="w-32 sm:w-40 h-full bg-gray-100 flex-shrink-0 border-r border-gray-100 overflow-hidden">
-                        <img src="/paper/cover" alt="ApDepth Cover" class="w-full h-full object-cover object-top hover:scale-110 transition duration-500">
-                    </div>
-
-                    <div class="flex-1 p-6 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start">
+                            <div class="flex-1 p-6 flex flex-col justify-between">
                                 <div>
-                                    <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">Research Paper</span>
-                                    <h3 class="text-xl font-bold mt-2 text-gray-800 hover:text-blue-600 cursor-pointer"
-                                        onclick="window.location.href='/thesis'">
-                                        ApDepth
-                                    </h3>
+                                    <div class="flex justify-between items-start">
+                                        <div class="min-w-0 pr-3">
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                {{range .ClassificationList}}
+                                                    <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">
+            {{.}}
+        </span>
+                                                {{end}}
+                                            </div>
+                                            <h3 class="text-xl font-bold mt-2 text-gray-800 hover:text-blue-600 cursor-pointer line-clamp-2"
+                                                onclick="window.location.href='/thesis/{{.ID}}'">
+                                                {{.Title}}
+                                            </h3>
+                                        </div>
+
+                                        <div class="flex gap-1 flex-shrink-0">
+                                            {{/*                                            <a class="p-2 text-gray-400 hover:text-blue-500 transition" href="/asset/{{.StoragePath}}" title="下载PDF">*/}}
+                                            {{/*                                                <i class="fas fa-download"></i>*/}}
+                                            {{/*                                            </a>*/}}
+                                            {{if $.isLogin}}
+                                                <button class="p-2 text-gray-300 cursor-not-allowed"
+                                                        title="删除（你还没实现接口）">
+                                                    <i class="fas fa-trash-can"></i>
+                                                </button>
+                                            {{end}}
+                                        </div>
+                                    </div>
+
+                                    <p class="text-gray-500 text-sm mt-2 line-clamp-2">
+                                        {{if .Journal}}Published on:{{.Journal}}{{else}}arxiv.org{{end}}
+                                    </p>
                                 </div>
-                                <div class="flex gap-1">
-                                    <button class="p-2 text-gray-400 hover:text-blue-500 transition"><i class="fas fa-download"></i></button>
-                                    <button class="p-2 text-gray-400 hover:text-red-500 transition"><i class="fas fa-trash-can"></i></button>
+
+                                <div class="flex items-center text-xs text-gray-400">
+                                    <span><i class="far fa-user mr-1"></i> {{.Author}}</span>
+                                    <span class="mx-3">|</span>
+                                    <span><i class="far fa-calendar-alt mr-1"></i> {{.PublicDate.Format "2006-01-02"}}</span>
                                 </div>
                             </div>
-                            <p class="text-gray-500 text-sm mt-2 line-clamp-2">
-                                基于深度学习的深度估计系统研究与实现。
-                            </p>
                         </div>
-
-                        <div class="flex items-center text-xs text-gray-400">
-                            <span><i class="far fa-user mr-1"></i> System Admin</span>
-                            <span class="mx-3">|</span>
-                            <span><i class="far fa-calendar-alt mr-1"></i> 2023-12-19</span>
-                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 border-dashed flex items-center justify-center text-gray-400 py-10">
+                        暂无论文数据
                     </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl border border-gray-200 border-dashed flex items-center justify-center text-gray-400 py-10">
-                    暂无更多论文数据
-                </div>
+                {{end}}
             </div>
         </div>
     </main>
 </div>
 
 <footer class="h-10 bg-white border-t border-gray-200 flex items-center justify-between px-6 text-xs text-gray-500">
-    <div>论文管理系统 © 2023</div>
+    <div>©Haruko386 🍓 all right reserved</div>
     <div class="flex gap-4">
         <span>数据库状态: <span class="text-green-500">● 已连接</span></span>
-        <span>存储空间: 1.2GB / 10GB</span>
     </div>
 </footer>
 
 <script type="module" src="/static/js/index.js"></script>
+<script>
+    // 让头像按钮点击打开/关闭下拉
+    const btn = document.getElementById('userMenuBtn');
+    const dd = document.getElementById('userDropdown');
+    btn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dd.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => dd.classList.add('hidden'));
+</script>
 </body>
 </html>
