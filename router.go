@@ -59,6 +59,13 @@ func initRoutes(r *gin.Engine) {
 			currentCls = "全部"
 		}
 
+		for i := range theses {
+			if theses[i].Classification == "" {
+				continue
+			}
+			theses[i].ClassificationList = strings.Split(theses[i].Classification, ";")
+		}
+
 		categories := make(map[string]int)
 
 		var all []models.Thesis
@@ -122,14 +129,6 @@ func initRoutes(r *gin.Engine) {
 		})
 	})
 
-	r.DELETE("/delete/:id", func(c *gin.Context) {
-		var thesis models.Thesis
-		if err := models.DB.First(&thesis, c.Param("id")).Error; err != nil {
-			c.String(http.StatusNotFound, "删除失败")
-			return
-		}
-	})
-
 	// 退出登录
 	r.GET("/logout", func(c *gin.Context) {
 		// MaxAge=-1 删除 cookie；domain 传 "" 不写死
@@ -141,7 +140,8 @@ func initRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 	{
 		api.POST("login", views.LoginHandler)
-		api.GET("search", views.SearchHandler) // 占位符
+		api.GET("search", views.SearchHandler)
+		api.DELETE("/delete/:id", views.DeletePaper)
 
 		// 只有登录后才能上传
 		authed := api.Group("")

@@ -7,19 +7,30 @@
 <body class="bg-gray-50 flex items-center justify-center h-screen">
 <div class="bg-white p-8 rounded-2xl shadow-sm border w-full max-w-lg">
     <h2 class="text-2xl font-bold mb-6">上传新论文</h2>
+
     <form action="/api/upload" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <!-- 论文标题 -->
         <input type="text" name="title" placeholder="论文标题" class="w-full border p-3 rounded-xl bg-gray-50" required>
+
+        <!-- 作者 -->
         <input type="text" name="author" placeholder="作者" class="w-full border p-3 rounded-xl bg-gray-50" required>
-        <select name="classification" class="w-full border p-3 rounded-xl bg-gray-50">
-            <option value="未分类">选择分类</option>
-            <option value="人工智能">人工智能</option>
-            <option value="计算机视觉">计算机视觉</option>
-        </select>
+
+        <!-- 分类 -->
+        <input type="text" name="classification" placeholder="分类（用;隔开多个分类）" class="w-full border p-3 rounded-xl bg-gray-50" required>
+
+        <input type="text" name="journal" placeholder="发表期刊" class="w-full border p-3 rounded-xl bg-gray-50" required>
+
+        <!-- 发布日期 -->
+        <input type="date" name="publicdate" class="w-full border p-3 rounded-xl bg-gray-50" required>
+
+        <!-- 文件上传 -->
         <div class="border-2 border-dashed rounded-xl p-8 text-center hover:bg-gray-50 transition cursor-pointer relative">
-            <input type="file" name="file" class="absolute inset-0 opacity-0 cursor-pointer" required>
+            <input type="file" name="file" accept="application/pdf" class="absolute inset-0 opacity-0 cursor-pointer" required>
             <p class="text-gray-400">点击或拖拽 PDF 文件至此处</p>
         </div>
+
         <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">确认上传</button>
+        <a href="/" class="block text-center text-sm text-gray-500 hover:text-blue-600">返回首页</a>
     </form>
 </div>
 </body>

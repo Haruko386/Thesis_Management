@@ -42,7 +42,7 @@ func LoginHandler(c *gin.Context) {
 	}
 	println(1)
 	// 登录成功：设置一个名为 "user_session" 的 Cookie，有效期 1 小时
-	c.SetCookie("user_session", user.Username, 3600, "/", "localhost", false, true)
+	c.SetCookie("user_session", user.Username, 3600, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"code": http.StatusOK,
 		"msg":  "ok",

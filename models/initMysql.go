@@ -36,4 +36,6 @@ type Thesis struct {
 	Classification string
 	PublicDate     time.Time
 	StoragePath    string
+
+	ClassificationList []string `gorm:"-" json:"classification_list"`
 }
