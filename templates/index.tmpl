@@ -6,22 +6,36 @@
     <title>论文管理系统 - PaperHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/index.css">
+    <style>
+        /* 简单的淡入淡出动画 */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.2s, transform 0.2s;
+        }
+    </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="h-screen flex flex-col bg-gray-50">
 
-<header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-20">
+<header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-20 shadow-sm">
     <div class="flex items-center gap-4">
-        <button id="toggleBtn" class="text-gray-500 hover:text-blue-600 transition">
+        <button id="toggleBtn" class="text-gray-500 hover:text-blue-600 transition md:hidden">
             <i class="fas fa-bars text-xl"></i>
         </button>
-        <h1 class="text-xl font-bold tracking-tight text-gray-800">Paper<span class="text-blue-600">Hub</span></h1>
+        <h1 class="text-xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
+            <i class="fas fa-book-open text-blue-600"></i>
+            Paper<span class="text-blue-600">Hub</span>
+        </h1>
     </div>
 
     <div class="flex items-center gap-4 relative">
         <div class="relative group">
             <button id="userMenuBtn"
-                    class="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition focus:outline-none overflow-hidden">
+                    class="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition focus:outline-none overflow-hidden ring-2 ring-transparent hover:ring-blue-100">
                 {{if .isLogin}}
                     <img src="/asset/admin.png" class="w-full h-full object-cover" alt="admin">
                 {{else}}
@@ -30,19 +44,20 @@
             </button>
 
             <div id="userDropdown"
-                 class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
+                 class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 transform origin-top-right transition-all">
                 {{if .isLogin}}
-                    <p class="px-4 py-2 text-xs text-gray-400 font-medium uppercase tracking-wider">当前用户</p>
-                    <div class="px-4 pb-2 text-sm text-gray-700 font-semibold truncate">{{.user}}</div>
-                    <div class="border-t border-gray-100 my-1"></div>
+                    <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                        <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">Signed in as</p>
+                        <p class="text-sm font-bold text-gray-800 truncate mt-1">{{.user}}</p>
+                    </div>
                     <a href="/logout"
-                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition">
-                        <i class="fas fa-sign-out-alt mr-3"></i> 退出登录
+                       class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition group">
+                        <i class="fas fa-sign-out-alt mr-3 text-gray-400 group-hover:text-red-500"></i> 退出登录
                     </a>
                 {{else}}
                     <a href="/login"
-                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
-                        <i class="fas fa-sign-in-alt mr-3"></i> 登录系统
+                       class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition group">
+                        <i class="fas fa-sign-in-alt mr-3 text-gray-400 group-hover:text-blue-500"></i> 登录系统
                     </a>
                 {{end}}
             </div>
@@ -51,123 +66,155 @@
 </header>
 
 <div class="flex flex-1 overflow-hidden">
-    <aside id="sidebar" class="sidebar-transition w-64 bg-white border-r border-gray-200 flex flex-col">
+    <aside id="sidebar" class="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col transition-all duration-300">
         <div class="p-6">
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Categories</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">Categories</p>
             <nav class="space-y-1">
                 <a href="/?c=全部"
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-md {{if eq .currentCls "全部"}}bg-blue-50 text-blue-700{{else}}text-gray-600 hover:bg-gray-50{{end}}">
-                    <i class="fas fa-layer-group mr-3"></i>
+                   class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{if eq .currentCls "全部"}}bg-blue-50 text-blue-700{{else}}text-gray-600 hover:bg-gray-100{{end}}">
+                    <i class="fas fa-layer-group w-5 {{if eq .currentCls "全部"}}text-blue-600{{else}}text-gray-400{{end}}"></i>
                     <span>全部</span>
-                    <span class="ml-auto bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-xs">{{.totalCount}}</span>
+                    <span class="ml-auto bg-gray-100 text-gray-600 py-0.5 px-2.5 rounded-full text-xs font-semibold group-hover:bg-white border border-transparent group-hover:border-gray-200">{{.totalCount}}</span>
                 </a>
 
                 {{range $name, $count := .categories}}
                     <a href="/?c={{$name}}"
-                       class="group flex items-center px-3 py-2 text-sm font-medium rounded-md
-   {{if eq $.currentCls $name}}bg-blue-50 text-blue-700{{else}}text-gray-600 hover:bg-gray-50{{end}}">
-                        <i class="fas fa-folder-open mr-3"></i>
+                       class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors
+                       {{if eq $.currentCls $name}}bg-blue-50 text-blue-700{{else}}text-gray-600 hover:bg-gray-100{{end}}">
+                        <i class="fas fa-folder-open w-5 {{if eq $.currentCls $name}}text-blue-600{{else}}text-gray-400{{end}}"></i>
                         <span class="truncate">{{$name}}</span>
-                        <span class="ml-auto bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-        {{$count}}
-    </span>
+                        <span class="ml-auto bg-gray-100 text-gray-600 py-0.5 px-2.5 rounded-full text-xs font-semibold group-hover:bg-white border border-transparent group-hover:border-gray-200">
+                            {{$count}}
+                        </span>
                     </a>
                 {{end}}
-
-                <!-- 去掉“新建分类” -->
             </nav>
         </div>
         <div class="mt-auto p-4 border-t border-gray-100 text-xs text-gray-400 text-center">
-            v1.0.0 Alpha
+            PaperHub v1.0.0 Alpha
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto p-8">
+    <main class="flex-1 overflow-y-auto bg-gray-50 p-6 md:p-8">
         <div class="max-w-5xl mx-auto">
-            <div class="flex justify-between items-end mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900">所有论文</h2>
-                    <p class="text-gray-500 mt-1">当前分类：<span
-                                class="font-medium text-gray-700">{{.currentCls}}</span></p>
+                    <h2 class="text-2xl font-bold text-gray-900 tracking-tight">所有论文</h2>
+                    <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                        <span class="bg-gray-200 text-gray-600 px-2 py-0.5 rounded text-xs font-medium">{{.currentCls}}</span>
+                        <span>共找到 {{len .theses}} 篇文档</span>
+                    </p>
                 </div>
 
-                {{if .isLogin}}
-                    <a href="/upload"
-                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
-                        + 上传新论文
-                    </a>
-                {{else}}
-                    <a href="/login"
-                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
-                        登录后上传
-                    </a>
-                {{end}}
+                <div class="flex items-center gap-3">
+                    <div class="relative relative-sort-menu">
+                        <button id="sortBtn" class="flex items-center gap-2 bg-white border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition shadow-sm">
+                            <span>Sort</span>
+                            <i class="fas fa-caret-down text-gray-400"></i>
+                        </button>
+
+                        <div id="sortDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-30">
+                            <div class="flex justify-between items-center px-4 py-2 border-b border-gray-100">
+                                <span class="text-xs font-semibold text-gray-900">Select order</span>
+                                <i class="fas fa-times text-gray-400 cursor-pointer text-xs hover:text-gray-600" onclick="document.getElementById('sortDropdown').classList.add('hidden')"></i>
+                            </div>
+
+                            <div class="py-1">
+                                <a href="#" data-sort="newest" class="sort-option group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                                    <span class="w-6 flex items-center justify-center icon-area"></span>
+                                    <span>Last updated</span>
+                                </a>
+                                <a href="#" data-sort="title" class="sort-option group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                                    <span class="w-6 flex items-center justify-center icon-area"></span>
+                                    <span>Title (A-Z)</span>
+                                </a>
+                                <a href="#" data-sort="date" class="sort-option group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                                    <span class="w-6 flex items-center justify-center icon-area"></span>
+                                    <span>Public Date</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{if .isLogin}}
+                        <a href="/upload"
+                           class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition transform active:scale-95">
+                            <i class="fas fa-plus"></i>
+                            <span class="hidden sm:inline">New Paper</span>
+                            <span class="sm:hidden">New</span>
+                        </a>
+                    {{else}}
+                        <a href="/login"
+                           class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition">
+                            Login to Upload
+                        </a>
+                    {{end}}
+                </div>
             </div>
 
             <div class="grid gap-6">
                 {{if .theses}}
                     {{range .theses}}
-                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex h-48">
-                            <div class="w-32 sm:w-40 h-full bg-gray-100 flex-shrink-0 border-r border-gray-100 overflow-hidden">
+                        <div class="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300 overflow-hidden flex h-40 sm:h-48">
+                            <div class="w-28 sm:w-40 h-full bg-gray-100 flex-shrink-0 border-r border-gray-100 overflow-hidden relative">
                                 <img src="/paper/cover/{{.ID}}" alt="cover"
-                                     class="w-full h-full object-cover object-top hover:scale-110 transition duration-500">
+                                     class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition duration-300"></div>
                             </div>
 
-                            <div class="flex-1 p-6 flex flex-col justify-between">
+                            <div class="flex-1 p-4 sm:p-6 flex flex-col justify-between">
                                 <div>
                                     <div class="flex justify-between items-start">
                                         <div class="min-w-0 pr-3">
-                                            <div class="flex flex-wrap gap-1 mt-1">
+                                            <div class="flex flex-wrap gap-2 mb-2">
                                                 {{range $i := .ClassificationList}}
-                                                    <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 uppercase tracking-wide border border-blue-100">
                                                         {{$i}}
                                                     </span>
                                                 {{end}}
                                             </div>
-                                            <h3 class="text-xl font-bold mt-2 text-gray-800 hover:text-blue-600 cursor-pointer line-clamp-2"
+                                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 group-hover:text-blue-600 cursor-pointer line-clamp-1 sm:line-clamp-2 transition-colors"
                                                 onclick="window.location.href='/thesis/{{.ID}}'">
                                                 {{.Title}}
                                             </h3>
                                         </div>
 
-                                        <div class="flex gap-1 flex-shrink-0">
-                                            {{/*                                            <a class="p-2 text-gray-400 hover:text-blue-500 transition" href="/asset/{{.StoragePath}}" title="下载PDF">*/}}
-                                            {{/*                                                <i class="fas fa-download"></i>*/}}
-                                            {{/*                                            </a>*/}}
+                                        <div class="flex gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                             {{if $.isLogin}}
-                                                <button
-                                                        class="p-2 text-gray-400 hover:text-blue-600 transition"
+                                                <button class="w-8 h-8 rounded-full hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition flex items-center justify-center"
                                                         onclick="window.location.href='/edit/{{.ID}}'"
-                                                        title="edit">
-                                                    <i class="fas fa-pencil"></i>
+                                                        title="Edit">
+                                                    <i class="fas fa-pencil-alt text-sm"></i>
                                                 </button>
-
-                                                <button
-                                                        class="p-2 text-gray-400 hover:text-red-600 transition"
+                                                <button class="w-8 h-8 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-600 transition flex items-center justify-center"
                                                         onclick="deletePaper({{.ID}})"
-                                                        title="delete">
-                                                    <i class="fas fa-trash-can"></i>
+                                                        title="Delete">
+                                                    <i class="fas fa-trash-alt text-sm"></i>
                                                 </button>
                                             {{end}}
                                         </div>
                                     </div>
 
-                                    <p class="text-gray-500 text-sm mt-2 line-clamp-2">
-                                        {{if .Journal}}Published on:{{.Journal}}{{else}}arxiv.org{{end}}
+                                    <p class="text-gray-500 text-sm mt-1 line-clamp-1">
+                                        {{if .Journal}}<span class="font-serif italic text-gray-600">{{.Journal}}</span>{{else}}<span class="text-gray-400">Arxiv Preprint</span>{{end}}
                                     </p>
                                 </div>
 
-                                <div class="flex items-center text-xs text-gray-400">
-                                    <span><i class="far fa-user mr-1"></i> {{.Author}}</span>
-                                    <span class="mx-3">|</span>
-                                    <span><i class="far fa-calendar-alt mr-1"></i> {{.PublicDate.Format "2006-01-02"}}</span>
+                                <div class="flex items-center text-xs text-gray-400 border-t border-gray-50 pt-3 mt-2">
+                                    <span class="flex items-center"><i class="far fa-user mr-1.5"></i> {{.Author}}</span>
+                                    <span class="mx-3 text-gray-200">|</span>
+                                    <span class="flex items-center"><i class="far fa-calendar-alt mr-1.5"></i> {{.PublicDate.Format "2006-01-02"}}</span>
                                 </div>
                             </div>
                         </div>
                     {{end}}
                 {{else}}
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 border-dashed flex items-center justify-center text-gray-400 py-10">
-                        暂无论文数据
+                    <div class="bg-white rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center py-16 text-center">
+                        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-search text-gray-300 text-2xl"></i>
+                        </div>
+                        <h3 class="text-gray-900 font-medium">No papers found</h3>
+                        <p class="text-gray-500 text-sm mt-1">Try adjusting your category filter.</p>
                     </div>
                 {{end}}
             </div>
@@ -190,31 +237,86 @@
 
 <script type="module" src="/static/js/index.js"></script>
 <script>
-    // 让头像按钮点击打开/关闭下拉
-    const btn = document.getElementById('userMenuBtn');
-    const dd = document.getElementById('userDropdown');
-    btn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dd.classList.toggle('hidden');
-    });
-    document.addEventListener('click', () => dd.classList.add('hidden'));
+    /* ================= 用户菜单逻辑 ================= */
+    const userBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
 
-    // 论文
+    // 点击切换
+    userBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('hidden');
+        if(!userDropdown.classList.contains('hidden')) {
+            // 关闭其他可能打开的菜单
+            sortDropdown.classList.add('hidden');
+        }
+    });
+
+    /* ================= 排序菜单逻辑 (新增) ================= */
+    const sortBtn = document.getElementById('sortBtn');
+    const sortDropdown = document.getElementById('sortDropdown');
+
+    // 1. 点击切换排序菜单
+    sortBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sortDropdown.classList.toggle('hidden');
+        if(!sortDropdown.classList.contains('hidden')) {
+            userDropdown.classList.add('hidden');
+        }
+    });
+
+    // 2. 点击外部关闭所有菜单
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.group') && !e.target.closest('.relative-sort-menu')) {
+            userDropdown.classList.add('hidden');
+            sortDropdown.classList.add('hidden');
+        }
+    });
+
+    // 3. 处理排序参数和UI状态
+    document.addEventListener('DOMContentLoaded', () => {
+        // 获取当前 URL 参数
+        const params = new URLSearchParams(window.location.search);
+        const currentSort = params.get('sort') || 'newest'; // 默认为 'newest'
+
+        // 遍历所有排序选项
+        const sortOptions = document.querySelectorAll('.sort-option');
+        sortOptions.forEach(option => {
+            const sortType = option.dataset.sort;
+            const iconArea = option.querySelector('.icon-area');
+
+            // 构建新的 URL（保留 c=category 参数，更新 sort 参数）
+            const newParams = new URLSearchParams(window.location.search);
+            newParams.set('sort', sortType);
+            option.href = '?' + newParams.toString();
+
+            // 如果是当前选中的排序方式
+            if (sortType === currentSort) {
+                iconArea.innerHTML = '<i class="fas fa-check text-blue-600"></i>';
+                option.classList.add('bg-blue-50', 'text-blue-700');
+            }
+        });
+
+        // 更新按钮上的文本（可选）
+        const activeText = document.querySelector(`.sort-option[data-sort="${currentSort}"] span:last-child`)?.innerText;
+        // if(activeText) document.querySelector('#sortBtn span').innerText = "Sort: " + activeText;
+    });
+
+    /* ================= 删除逻辑 ================= */
     function deletePaper(id) {
         if (!confirm("确认删除这篇论文吗？此操作不可恢复")) {
             return;
         }
-        console.log("test")
+
         fetch(`/api/delete/${id}`, {
             method: 'DELETE'
         })
             .then(res => res.json())
             .then(data => {
                 alert(data.message || "删除成功");
-                location.reload(); // 刷新页面
+                location.reload();
             })
             .catch(err => {
-                alert("删除失败");
+                alert("删除失败，请检查网络或权限");
                 console.error(err);
             });
     }
