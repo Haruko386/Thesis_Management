@@ -5,6 +5,7 @@ import (
 	"ThesisManagement/views"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -136,6 +137,30 @@ func initRoutes(r *gin.Engine) {
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	})
 
+	r.GET("/edit/:id", RequireLoginPage(), func(c *gin.Context) {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"msg": "参数错误",
+			})
+			return
+		}
+
+		var thesis models.Thesis
+		if err := models.DB.First(&thesis, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"msg": "论文不存在",
+			})
+			return
+		}
+		// 返回给前端
+		println(thesis.Title)
+		c.HTML(http.StatusOK, "edit.tmpl", gin.H{
+			"Thesis": thesis,
+		})
+	})
+
 	/* api组件 */
 	api := r.Group("/api")
 	{
@@ -147,5 +172,6 @@ func initRoutes(r *gin.Engine) {
 		authed := api.Group("")
 		authed.Use(RequireLoginAPI())
 		authed.POST("/upload", views.PostUploadHandler)
+		authed.PUT("/edit/:id", views.EditThesis)
 	}
 }

@@ -136,9 +136,16 @@
                                             {{/*                                            </a>*/}}
                                             {{if $.isLogin}}
                                                 <button
+                                                        class="p-2 text-gray-400 hover:text-blue-600 transition"
+                                                        onclick="window.location.href='/edit/{{.ID}}'"
+                                                        title="edit">
+                                                    <i class="fas fa-pencil"></i>
+                                                </button>
+
+                                                <button
                                                         class="p-2 text-gray-400 hover:text-red-600 transition"
                                                         onclick="deletePaper({{.ID}})"
-                                                        title="删除论文">
+                                                        title="delete">
                                                     <i class="fas fa-trash-can"></i>
                                                 </button>
                                             {{end}}
@@ -171,7 +178,13 @@
 <footer class="h-10 bg-white border-t border-gray-200 flex items-center justify-between px-6 text-xs text-gray-500">
     <div>©Haruko386 🍓 all right reserved</div>
     <div class="flex gap-4">
-        <span>数据库状态: <span class="text-green-500">● 已连接</span></span>
+        <span>数据库访问权限:
+        {{if .isLogin}}
+            <span class="text-green-500">● 已连接</span>
+        {{else}}
+            <span class="text-red-500">● 未连接</span>
+        {{end}}
+        </span>
     </div>
 </footer>
 
@@ -186,6 +199,7 @@
     });
     document.addEventListener('click', () => dd.classList.add('hidden'));
 
+    // 论文
     function deletePaper(id) {
         if (!confirm("确认删除这篇论文吗？此操作不可恢复")) {
             return;
